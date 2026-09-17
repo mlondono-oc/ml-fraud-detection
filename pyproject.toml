@@ -1,0 +1,24 @@
+[project]
+name = "ml-fraud-detection"
+version = "0.1.0"
+description = "Solución de ML para la detección de transacciones fraudulentas"
+readme = "README.md"
+authors = [
+    { name = "mlondono-oc", email = "mlondono.oc@gmail.com" }
+]
+requires-python = ">=3.12"
+
+dependencies = [
+    "ipykernel",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "seaborn",
+    "xgboost",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
