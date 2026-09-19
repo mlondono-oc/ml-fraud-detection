@@ -104,3 +104,32 @@ def evaluate(
         "recall_monto": amount[fraude_detectado].sum()
         / amount[y_true == 1].sum(),
     }
+
+
+def profit_std(
+    amount: np.ndarray,
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    margin: float = 0.25,
+    fraud_loss: float = 1.0,
+    n_boot: int = 500,
+    random_state: int = 42,
+) -> float:
+    """
+    Estima cuánto varía la ganancia por azar, remuestreando las transacciones
+    (bootstrap).
+
+    Sirve para saber si la diferencia de ganancia entre dos modelos es real o
+    ruido.
+
+    Returns:
+        float: Desviación estándar de la ganancia entre las muestras bootstrap.
+    """
+    rng = np.random.default_rng(random_state)
+    ganancias = []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(y_true), len(y_true))
+        ganancias.append(
+            profit(amount[i], y_true[i], y_pred[i], margin, fraud_loss)
+        )
+    return float(np.std(ganancias))

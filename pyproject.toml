@@ -11,12 +11,12 @@ requires-python = ">=3.12"
 dependencies = [
     "ipykernel",
     "jupyter",
+    "lightgbm>=4.7.0",
     "matplotlib",
     "numpy",
     "pandas",
     "scikit-learn",
     "seaborn",
-    "xgboost",
 ]
 
 [build-system]

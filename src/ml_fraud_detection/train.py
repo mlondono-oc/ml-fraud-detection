@@ -51,6 +51,7 @@ def score_on_val(
     proba = model.predict_proba(X_val)[:, 1]
     umbral = best_threshold(monto, y_true, proba, **negocio)
     y_pred = (proba >= umbral).astype(int)
+
     metricas = evaluate(monto, y_true, y_pred, **negocio)
     metricas["ap"] = average_precision_score(y_true, proba)
     metricas["ganancia_std"] = profit_std(monto, y_true, y_pred, **negocio)
@@ -92,6 +93,13 @@ def main(config_path: str = CONFIG_PATH) -> None:
         params = {**params, "random_state": training["random_state"]}
         model = train_model(params, X_train, train[TARGET_COLUMN])
         umbral, metricas = score_on_val(model, X_val, val, negocio)
+
+        # Añadir AP de entrenamiento para evaluar sobreajuste, sin afectar la
+        # elección del mejor candidato, que se hace solo con validación
+        metricas["ap_train"] = average_precision_score(
+            train[TARGET_COLUMN], model.predict_proba(X_train)[:, 1]
+        )
+
         resultados.append({**params, "umbral": umbral, **metricas})
         modelos.append(model)
         parametros.append(params)
@@ -100,23 +108,19 @@ def main(config_path: str = CONFIG_PATH) -> None:
             f" | recall monto = {metricas['recall_monto']:.3f}"
         )
 
-    # 4. Selección: entre los candidatos cuya ganancia no se distingue de la
-    #    mejor, el que más monto de fraude detecta
+    # 4. Selección: el candidato con mayor ganancia en validación
     tabla = pd.DataFrame(resultados)
-    top = tabla.loc[tabla["ganancia"].idxmax()]
-    empatados = tabla[
-        tabla["ganancia"] >= top["ganancia"] - top["ganancia_std"]
-    ]
-    elegido = empatados["recall_monto"].idxmax()
+    elegido = tabla["ganancia"].idxmax()
     mejor = {
         "model": modelos[elegido],
         "params": parametros[elegido],
         "umbral": tabla.loc[elegido, "umbral"],
         "metricas": tabla.loc[elegido, list(metricas)].to_dict(),
     }
+
     print(
-        f"\nMejor ganancia {top['ganancia']:,.0f} ± {top['ganancia_std']:,.0f}: "
-        f"{len(empatados)} candidatos empatados"
+        f"\nMejor ganancia {mejor['metricas']['ganancia']:,.0f} "
+        f"± {mejor['metricas']['ganancia_std']:,.0f}"
     )
 
     tabla = tabla.sort_values("ganancia", ascending=False)
@@ -136,10 +140,35 @@ def main(config_path: str = CONFIG_PATH) -> None:
         train[TARGET_COLUMN], mejor["model"].predict_proba(X_train)[:, 1]
     )
     print(
-        f"AP train {ap_train:.4f} | AP val {mejor['metricas']['ap']:.4f} | brecha {ap_train - mejor['metricas']['ap']:.4f}\n"
+        f"AP train {ap_train:.4f} | AP val {mejor['metricas']['ap']:.4f}"
+        f" | brecha {ap_train - mejor['metricas']['ap']:.4f}\n"
     )
 
-    # 7. Artefactos para inferencia
+    # 7. Predicciones y métricas de validación, para el notebook de evaluación
+    pd.DataFrame(
+        {
+            "fecha": val["fecha"].values,
+            "monto": val["monto"].values,
+            "score": val["score"].values,
+            TARGET_COLUMN: val[TARGET_COLUMN].values,
+            "proba": mejor["model"].predict_proba(X_val)[:, 1],
+        }
+    ).to_csv(config["inference"]["val_predictions"], index=False)
+
+    Path(config["inference"]["val_metrics"]).write_text(
+        json.dumps(
+            {
+                **mejor["metricas"],
+                "ap_train": ap_train,
+                "umbral": mejor["umbral"],
+                "params": mejor["params"],
+            },
+            indent=2,
+            default=float,
+        )
+    )
+
+    # 8. Artefactos para inferencia
     ruta = Path(config["inference"]["artifacts"])
     joblib.dump(
         {

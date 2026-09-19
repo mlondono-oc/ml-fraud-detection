@@ -1,0 +1,33 @@
+{
+  "data": {
+    "path": "data/dataset.csv",
+    "val_weeks": 1,
+    "test_weeks": 2
+  },
+  "features": {
+    "umbral_otros": 300
+  },
+  "training": {
+    "n_iter": 50,
+    "random_state": 88,
+    "search_space": {
+      "n_estimators": [100, 200, 300, 350],
+      "learning_rate": [0.01, 0.05, 0.1],
+      "num_leaves": [8, 15, 30, 60],
+      "min_data_in_leaf": [20, 50, 100, 200],
+      "class_weight": ["balanced"]
+    }
+  },
+  "business-rules": {
+    "margin": 0.25,
+    "fraud_loss": 1.0
+  },
+  "inference": {
+    "artifacts": "models/modelo.pkl",
+    "tuning_results": "models/tuning.csv",
+    "val_predictions": "models/predicciones_val.csv",
+    "val_metrics": "models/metricas_val.json",
+    "predictions": "models/predicciones.csv"
+  }
+
+}
