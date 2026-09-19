@@ -1,0 +1,26 @@
+{
+  "ganancia": 173034.07,
+  "ganancia_aprobar_todo": 128268.77250000002,
+  "mejora": 44765.297499999986,
+  "tp": 778.0,
+  "fp": 1432.0,
+  "tn": 21689.0,
+  "fn": 544.0,
+  "tasa_aprobacion": 0.9095855664198339,
+  "recall": 0.5885022692889561,
+  "precision": 0.35203619909502265,
+  "fpr": 0.06193503741187665,
+  "recall_monto": 0.7156446502682511,
+  "ap": 0.4773028412740575,
+  "ganancia_std": 3752.8823674247733,
+  "ap_train": 0.5910705659759974,
+  "umbral": 0.68,
+  "params": {
+    "num_leaves": 30,
+    "n_estimators": 350,
+    "min_data_in_leaf": 100,
+    "learning_rate": 0.05,
+    "class_weight": "balanced",
+    "random_state": 88
+  }
+}
