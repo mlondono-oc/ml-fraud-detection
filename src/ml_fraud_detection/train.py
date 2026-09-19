@@ -75,7 +75,7 @@ def main(config_path: str = CONFIG_PATH) -> None:
     preprocessor = preprocessing_pipeline(threshold_otros).fit(train)
     X_train = preprocessor.transform(train)
 
-    # el grupo OTROS recibe el último código de cada columna de
+    # el grupo 'otros' recibe el último código de cada columna de
     # alta cardinalidad
     codigos_otros = X_train[["g", "j"]].max().astype(int).to_dict()
     X_val = preprocessor.transform(val).fillna(codigos_otros)
