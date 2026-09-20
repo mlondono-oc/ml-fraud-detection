@@ -29,7 +29,7 @@ NUMERICAL_COLUMNS = [
     "score",
     "hora",
 ]
-UMBRAL_OTROS = 20
+UMBRAL_OTROS = 300
 
 
 # Funciones auxiliares para la preparación de columnas

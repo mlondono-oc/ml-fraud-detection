@@ -26,6 +26,8 @@ ml-fraud-detection/
 * Python `>= 3.12`
 * [`uv`](https://docs.astral.sh/uv/) (recomendado) o `pip`
 
+> macOS: LightGBM requiere OpenMP (`brew install libomp`)
+
 ## Instalación
 
 ### Opción A: `uv`
